@@ -21,7 +21,7 @@ type NoteParameter =
     {
         Note : string
     }
-    
+
 [<CLIMutable>]
 type NoteDistanceParameters =
     {
@@ -37,19 +37,19 @@ type TransposeParameters =
     }
 
 let private accidentNote accident =
-     parseNote >> accident >> noteName >> json     
-     
+     parseNote >> accident >> noteName >> json
+
 let private accident accident =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let noteParameter = ctx.BindQueryString<NoteParameter>()
             return! (noteParameter.Note |> accidentNote accident) next ctx
         }
-        
-let private measureDistance notes = 
+
+let private measureDistance notes =
     (measureAbsoluteSemitones (parseNote notes.LowNote) (parseNote notes.HighNote))
     |> json
-    
+
 let private distance =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
@@ -57,23 +57,23 @@ let private distance =
             return! (measureDistance notes) next ctx
         }
 
-let private calculatenterval notes = 
+let private calculatenterval notes =
     (intervalBetween (parseNote notes.LowNote) (parseNote notes.HighNote))
     |> intervalName
     |> json
-    
+
 let private interval =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let notes = ctx.BindQueryString<NoteDistanceParameters>()
             return! (calculatenterval notes) next ctx
         }
-        
-let private transposeNote note = 
+
+let private transposeNote note =
     (transpose (parseNote note.Note) (parseInterval note.Interval))
     |> noteName
     |> json
-    
+
 let private transpose =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
@@ -87,7 +87,7 @@ let webApp =
             choose [
                 route "/" >=> json "Hello from LetsComp"
                 route "/Notes/flat" >=> accident flat
-                route "/Notes/sharp" >=> accident sharp 
+                route "/Notes/sharp" >=> accident sharp
                 route "/Notes/distance" >=> distance
                 route "/Notes/interval" >=> interval
                 route "/Notes/transpose" >=> transpose
