@@ -1,8 +1,6 @@
 module LetsComp.App
 
 open System
-open System.Web
-open Microsoft.AspNetCore
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 open Microsoft.AspNetCore.Builder
@@ -12,7 +10,6 @@ open Giraffe.HttpHandlers
 open Giraffe.HttpContextExtensions
 open Giraffe.Middleware
 open Easy.Common
-open Vaughan.Domain
 open Vaughan.Notes
 open Vaughan.SpeechToMusic
 
@@ -115,6 +112,7 @@ let main _ =
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureLogging(configureLogging)
         .UseAzureAppServices()
+        .UseApplicationInsights()
         .Build()
         .Run()
     0

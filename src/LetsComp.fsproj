@@ -29,5 +29,7 @@
     <None Include="Properties\PublishProfiles\LetsCompApp - Web Deploy.pubxml" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.1" />
     <None Include="web.config" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.4.1" />
   </ItemGroup>
 </Project>

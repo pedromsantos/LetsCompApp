@@ -5,9 +5,11 @@ open FsUnit
 open FsCheck
 open FsUnit.Xunit
 open FsCheck.Xunit
-open System.Web
+open System.Net
+open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
+open Microsoft.AspNetCore.WebUtilities
 open Vaughan.Domain
 open Vaughan.Notes
 
@@ -28,7 +30,7 @@ let ``Should sharp note`` (note :Note)  =
     use server = new TestServer(createHost())
     use client = server.CreateClient()
 
-    get client ("/Notes/sharp?Note=" + HttpUtility.UrlEncode (noteName note))
+    get client ("/Notes/sharp?Note=" + WebUtility.UrlEncode (noteName note))
     |> ensureSuccess
     |> readText
     |> should equal (sprintf "\"%s\"" (sharp note |> noteName))
@@ -38,7 +40,7 @@ let ``Should flat note`` (note :Note)  =
      use server = new TestServer(createHost())
      use client = server.CreateClient()
 
-     get client ("/Notes/flat?Note=" + HttpUtility.UrlEncode (noteName note))
+     get client ("/Notes/flat?Note=" + WebUtility.UrlEncode (noteName note))
      |> ensureSuccess
      |> readText
      |> should equal (sprintf "\"%s\"" (flat note |> noteName))
@@ -50,7 +52,7 @@ let ``Should transpose note by interval`` (note :Note) (interval :Interval) =
                      use server = new TestServer(createHost())
                      use client = server.CreateClient()
 
-                     get client ("/Notes/transpose?Note=" + HttpUtility.UrlEncode (noteName note)
+                     get client ("/Notes/transpose?Note=" + WebUtility.UrlEncode (noteName note)
                         + "&Interval=" + (intervalName interval))
                      |> ensureSuccess
                      |> readText
@@ -61,8 +63,8 @@ let ``Should measure distance in semitones between two notes`` (noteA :Note) (no
     use server = new TestServer(createHost())
     use client = server.CreateClient()
 
-    get client ("/Notes/distance?LowNote=" + HttpUtility.UrlEncode (noteName noteA)
-        + "&HighNote=" + HttpUtility.UrlEncode (noteName noteB))
+    get client ("/Notes/distance?LowNote=" + WebUtility.UrlEncode (noteName noteA)
+        + "&HighNote=" + WebUtility.UrlEncode (noteName noteB))
     |> ensureSuccess
     |> readText
     |> should equal (sprintf "%i" (measureAbsoluteSemitones noteA noteB))
@@ -72,8 +74,8 @@ let ``Should calculate interva between two notes`` (noteA :Note) (noteB :Note) =
     use server = new TestServer(createHost())
     use client = server.CreateClient()
 
-    get client ("/Notes/interval?LowNote=" + HttpUtility.UrlEncode (noteName noteA)
-         + "&HighNote=" + HttpUtility.UrlEncode (noteName noteB))
+    get client ("/Notes/interval?LowNote=" + WebUtility.UrlEncode (noteName noteA)
+         + "&HighNote=" + WebUtility.UrlEncode (noteName noteB))
     |> ensureSuccess
     |> readText
     |> should equal (sprintf "\"%s\"" ((intervalBetween noteA noteB) |> intervalName))
