@@ -1,15 +1,11 @@
 module LetsCompTests
 
 open Xunit
-open FsUnit
 open FsCheck
 open FsUnit.Xunit
 open FsCheck.Xunit
 open System.Net
-open Microsoft.AspNetCore.Http
-open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
-open Microsoft.AspNetCore.WebUtilities
 open Vaughan.Domain
 open Vaughan.Notes
 
@@ -47,7 +43,7 @@ let ``Should flat note`` (note :Note)  =
 
 [<Property>]
 let ``Should transpose note by interval`` (note :Note) (interval :Interval) =
-     ( not (interval = PerfectOctave) )
+     (interval <> PerfectOctave)
          ==> lazy (
                      use server = new TestServer(createHost())
                      use client = server.CreateClient()
