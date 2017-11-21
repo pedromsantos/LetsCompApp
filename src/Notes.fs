@@ -16,7 +16,7 @@ type NoteParameter =
     }
 
 [<CLIMutable>]
-type NoteDistanceParameters =
+type DistanceParameters =
     {
         LowNote  : string;
         HighNote : string
@@ -30,47 +30,43 @@ type TransposeParameters =
     }
 
 let private accidentNote accident =
-     parseNote >> accident >> noteName >> json
+     parseNote >> accident >> noteName
 
-let private measureDistance notes =
-    (measureAbsoluteSemitones (parseNote notes.LowNote) (parseNote notes.HighNote))
-    |> json
+let private measureDistance distanceParameters =
+    measureAbsoluteSemitones (parseNote distanceParameters.LowNote) (parseNote distanceParameters.HighNote)
 
-
-let private calculatenterval notes =
-    (intervalBetween (parseNote notes.LowNote) (parseNote notes.HighNote))
+let private calculatenterval distanceParameters =
+    (intervalBetween (parseNote distanceParameters.LowNote) (parseNote distanceParameters.HighNote))
     |> intervalName
-    |> json
-
-let private transposeNote note =
-    (transpose (parseNote note.Note) (parseInterval note.Interval))
+    
+let private transposeNote transposeParameters =
+    (transpose (parseNote transposeParameters.Note) (parseInterval transposeParameters.Interval))
     |> noteName
-    |> json
-
+    
 let accident accident =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let noteParameter = ctx.BindQueryString<NoteParameter>()
-            return! (noteParameter.Note |> accidentNote accident) next ctx
+            return! (accidentNote accident noteParameter.Note |> json) next ctx
         }
 
 let distance =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let notes = ctx.BindQueryString<NoteDistanceParameters>()
-            return! (measureDistance notes) next ctx
+            let distanceParameters = ctx.BindQueryString<DistanceParameters>()
+            return! (measureDistance distanceParameters |> json) next ctx
         }
 
 let interval =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let notes = ctx.BindQueryString<NoteDistanceParameters>()
-            return! (calculatenterval notes) next ctx
+            let distanceParameters = ctx.BindQueryString<DistanceParameters>()
+            return! (calculatenterval distanceParameters |> json) next ctx
         }
 
 let transpose =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let note = ctx.BindQueryString<TransposeParameters>()
-            return! (transposeNote note) next ctx
+            let transposeParameters = ctx.BindQueryString<TransposeParameters>()
+            return! (transposeNote transposeParameters |> json) next ctx
         }
