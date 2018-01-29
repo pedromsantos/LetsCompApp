@@ -4,10 +4,14 @@ open Xunit
 open FsCheck
 open FsUnit.Xunit
 open FsCheck.Xunit
+open System
 open System.Net
 open Microsoft.AspNetCore.TestHost
 open Vaughan.Domain
 open Vaughan.Notes
+open Vaughan.Chords
+open Vaughan.Guitar
+open Vaughan.GuitarTab
 
 open AcceptanceTestHelpers
 
@@ -33,13 +37,14 @@ let ``Should sharp note`` (note :Note)  =
 
 [<Property>]
 let ``Should flat note`` (note :Note)  =
-     use server = new TestServer(createHost())
-     use client = server.CreateClient()
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
 
-     get client ("/Notes/flat?Note=" + WebUtility.UrlEncode (noteName note))
-     |> ensureSuccess
-     |> readText
-     |> should equal (sprintf "\"%s\"" (flat note |> noteName))
+    get client ("/Notes/flat?Note=" + WebUtility.UrlEncode (noteName note))
+    |> ensureSuccess
+    |> readText
+    |> should equal (sprintf "\"%s\"" (flat note |> noteName))
+
 
 [<Property>]
 let ``Should transpose note by interval`` (note :Note) (interval :Interval) =
@@ -66,7 +71,7 @@ let ``Should measure distance in semitones between two notes`` (noteA :Note) (no
     |> should equal (sprintf "%i" (measureAbsoluteSemitones noteA noteB))
 
 [<Property>]
-let ``Should calculate interva between two notes`` (noteA :Note) (noteB :Note) =
+let ``Should calculate interval between two notes`` (noteA :Note) (noteB :Note) =
     use server = new TestServer(createHost())
     use client = server.CreateClient()
 
@@ -75,3 +80,28 @@ let ``Should calculate interva between two notes`` (noteA :Note) (noteB :Note) =
     |> ensureSuccess
     |> readText
     |> should equal (sprintf "\"%s\"" ((intervalBetween noteA noteB) |> intervalName))
+
+[<Property>]
+let ``Should tabify chord`` (root:Note) (quality:ChordQuality) (structure:ChordType) =
+    ( quality = Major || quality = Major7 || quality = Minor || quality = Minor7)
+        ==> lazy (
+
+            use server = new TestServer(createHost())
+            use client = server.CreateClient()
+            let request = "/Chords/tabify?Chord=" +
+                          WebUtility.UrlEncode (noteName root) +
+                          WebUtility.UrlEncode ((sprintf "%A" quality).Replace("\"", "")) +
+                          WebUtility.UrlEncode ((sprintf "%A" structure).Replace("\"", ""))
+
+            let expectedTab =
+                match structure with
+                | Drop2 -> chord root quality |> toDrop2
+                | Drop3 -> chord root quality |> toDrop3
+                | _ -> chord root quality
+                |> createGuitarChord SixthString
+                |> tabify
+
+            get client request
+            |> ensureSuccess
+            |> readText
+            |> should equal (sprintf "%s" expectedTab))

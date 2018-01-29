@@ -38,11 +38,11 @@ let private measureDistance distanceParameters =
 let private calculatenterval distanceParameters =
     (intervalBetween (parseNote distanceParameters.LowNote) (parseNote distanceParameters.HighNote))
     |> intervalName
-    
+
 let private transposeNote transposeParameters =
     (transpose (parseNote transposeParameters.Note) (parseInterval transposeParameters.Interval))
     |> noteName
-    
+
 let accident accident =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {

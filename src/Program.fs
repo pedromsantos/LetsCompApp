@@ -16,6 +16,8 @@ open Easy.Common
 open Vaughan.Notes
 
 open LetsComp.Notes
+open LetsComp.Chords
+
 let webApp =
     choose [
         GET >=>
@@ -26,6 +28,7 @@ let webApp =
                 route "/Notes/distance" >=> distance
                 route "/Notes/interval" >=> interval
                 route "/Notes/transpose" >=> transpose
+                route "/Chords/tabify" >=> tabify
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
@@ -47,10 +50,10 @@ let main _ =
     WebHostBuilder()
         .UseKestrel()
         .UseIISIntegration()
-        .Configure(Action<IApplicationBuilder> configureApp)
-        .ConfigureLogging(configureLogging)
         .UseAzureAppServices()
         .UseApplicationInsights()
+        .ConfigureLogging(configureLogging)
+        .Configure(Action<IApplicationBuilder> configureApp)
         .Build()
         .Run()
     0
