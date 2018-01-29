@@ -83,7 +83,8 @@ let ``Should calculate interval between two notes`` (noteA :Note) (noteB :Note) 
 
 [<Property>]
 let ``Should tabify chord`` (root:Note) (quality:ChordQuality) (structure:ChordType) =
-    ( quality = Major || quality = Major7 || quality = Minor || quality = Minor7)
+    ( quality = Major || quality = Major7 || quality = Minor || quality = Minor7 || quality = Dominant7 ||
+      quality = Diminished || quality = Diminished7 || quality = Augmented || quality = Augmented7)
         ==> lazy (
 
             use server = new TestServer(createHost())
