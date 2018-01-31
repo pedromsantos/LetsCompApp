@@ -17,4 +17,4 @@ FROM microsoft/aspnetcore:2.0.3
 WORKDIR /app
 ENV ASPNETCORE_ENVIRONMENT Local
 COPY --from=build-env /dist .
-ENTRYPOINT ["dotnet", "letscomp.dll"]
+ENTRYPOINT ["dotnet", "LetsComp.dll"]
